@@ -51,7 +51,7 @@ function getTweets() {
         })
 }
 
-function postTweets(tweet) {
+function postTweet(tweet) {
     const params = {status: tweet};
     client.post('statuses/update', params)
         .then((tweet) => {
@@ -156,10 +156,20 @@ function inquireTweet() {
             type: "input",
             message: "What would you like to tweet?",
             name: "tweet"
+        },
+         {
+            type: "confirm",
+            message: "Are you sure:",
+            name: "confirm",
+            default: true
         }
     ])
     .then((response) => {
-        processRequest("post-tweet", response.tweet);
+        if (response.confirm) {
+            processRequest("post-tweet", response.tweet);
+        } else {
+            inquireTweet();
+        }
     })
     .catch((error) => {
         throw error;
@@ -173,10 +183,20 @@ function inquireTrack() {
             type: "input",
             message: "What song would you like to search for?",
             name: "track"
+        },
+         {
+            type: "confirm",
+            message: "Are you sure:",
+            name: "confirm",
+            default: true
         }
     ])
     .then((response) => {
-        processRequest("spotify-this-song", response.track);
+        if (response.confirm) {
+            processRequest("spotify-this-song", response.track);
+        } else {
+            inquireTrack();
+        }
     })
     .catch((error) => {
         throw error;
@@ -189,10 +209,20 @@ function inquireMovie() {
             type: "input",
             message: "What movie would you like to search for?",
             name: "movie"
+        },
+         {
+            type: "confirm",
+            message: "Are you sure:",
+            name: "confirm",
+            default: true
         }
     ])
     .then((response) => {
-        processRequest("movie-this", response.movie);
+        if (response.confirm) {
+            processRequest("movie-this", response.movie);
+        } else {
+            inquireMovie();
+        }
     })
     .catch((error) => {
         throw error;
@@ -204,7 +234,7 @@ function inquireCommand() {
         {
             type: "list",
             message: "What would you like to do?",
-            choices: ["Get my tweets", "Search Spotify", "Search Movies", "Run command from file"],
+            choices: ["Get my tweets", "Post tweet", "Search Spotify", "Search Movies", "Run command from file"],
             name: "choice"
         },
         {
@@ -212,7 +242,6 @@ function inquireCommand() {
             message: "Are you sure:",
             name: "confirm",
             default: true
-
         }
     ])
     .then((response) => {
