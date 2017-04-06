@@ -31,29 +31,35 @@ function processRequest(command, commandArg) {
 
 function getTweets() {
     const params = {screen_name: 'clever_cobra'};
-    client.get('statuses/user_timeline', params, (error, tweets, response) => {
-        if (error) throw error;
-        tweets.forEach((tweet, index) => {
-            let tweetItems = [tweet.created_at, tweet.text];
+    client.get('statuses/user_timeline', params)
+        .then((tweets) => {
+            tweets.forEach((tweet, index) => {
+                let tweetItems = [tweet.created_at, tweet.text];
 
-            tweetItems.forEach((item) => {
-                console.log(item);
-                fs.appendFileSync('./log.txt', item + '\n');
+                tweetItems.forEach((item) => {
+                    console.log(item);
+                    fs.appendFileSync('./log.txt', item + '\n');
+                })
+                endEntry();
+                if (index == 19) {
+                    return;
+                }
             })
-            endEntry();
-            if (index == 19) {
-                return;
-            }
         })
-    });
+        .catch((error) => {
+            throw error;
+        })
 }
 
 function postTweets(tweet) {
     const params = {status: tweet};
-    client.post('statuses/update', params, (error, tweet, response) => {
-        if (error) throw error;
-        getTweets();
-    });
+    client.post('statuses/update', params)
+        .then((tweet) => {
+            getTweets();
+        })
+        .catch((error) => {
+            throw error;
+        });
 }
 
 function getSong(song) {
@@ -111,7 +117,8 @@ function getMovie(movie) {
     rp({
         url: 'http://www.omdbapi.com/?t=' + movieName,
         json: true
-    }).then((movie) => {
+    })
+    .then((movie) => {
         let movieItems = [movie.Title, movie.Year, movie.imdbRating,
         movie.Country, movie.Language, movie.Plot, movie.Actors,
         movie.Ratings[1].Value];
@@ -122,7 +129,8 @@ function getMovie(movie) {
         })
 
         endEntry();
-    }).catch((err) => {
+    })
+    .catch((err) => {
         console.log(err);
     })
 }
@@ -149,9 +157,14 @@ function inquireTweet() {
             message: "What would you like to tweet?",
             name: "tweet"
         }
-    ]).then((response) => {
+    ])
+    .then((response) => {
         processRequest("post-tweet", response.tweet);
-    }) 
+    })
+    .catch((error) => {
+        throw error;
+    })
+     
 }
 
 function inquireTrack() {
@@ -161,8 +174,12 @@ function inquireTrack() {
             message: "What song would you like to search for?",
             name: "track"
         }
-    ]).then((response) => {
+    ])
+    .then((response) => {
         processRequest("spotify-this-song", response.track);
+    })
+    .catch((error) => {
+        throw error;
     }) 
 }
 
@@ -173,8 +190,12 @@ function inquireMovie() {
             message: "What movie would you like to search for?",
             name: "movie"
         }
-    ]).then((response) => {
+    ])
+    .then((response) => {
         processRequest("movie-this", response.movie);
+    })
+    .catch((error) => {
+        throw error;
     })
 }
 
@@ -193,7 +214,8 @@ function inquireCommand() {
             default: true
 
         }
-    ]).then((response) => {
+    ])
+    .then((response) => {
         if (response.confirm) {
             switch (response.choice) {
                 case "Get my tweets":
@@ -215,6 +237,9 @@ function inquireCommand() {
         } else {
             inquireCommand();
         }
+    })
+    .catch((error) => {
+        throw error;
     })
 }
 
