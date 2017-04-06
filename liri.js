@@ -277,7 +277,7 @@ function inquireCommand() {
         if (response.confirm) {
             switch (response.choice) {
                 case "Get my tweets":
-                    processRequest("my-tweets", "");
+                    processRequest("my-tweets", "clever_cobra");
                     break;
                 case "Get another users tweets":
                     inquireUsersTweets();
