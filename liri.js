@@ -10,7 +10,10 @@ const client = new Twitter(keys.twitterKeys);
 function processRequest(command, commandArg) {
     switch (command) {
         case "my-tweets":
-            getTweets();
+            getTweets('clever_cobra');
+            break;
+        case "get_tweets":
+            getTweets(commandArg)
             break;
         case "post-tweet":
             postTweet(commandArg);
@@ -29,8 +32,8 @@ function processRequest(command, commandArg) {
     }
 }
 
-function getTweets() {
-    const params = {screen_name: 'clever_cobra'};
+function getTweets(screenname) {
+    const params = {screen_name: screenname};
     client.get('statuses/user_timeline', params)
         .then((tweets) => {
             tweets.forEach((tweet, index) => {
@@ -127,11 +130,10 @@ function getMovie(movie) {
             console.log(item);
             fs.appendFileSync('./log.txt', item + '\n');
         })
-
         endEntry();
     })
-    .catch((err) => {
-        console.log(err);
+    .catch((error) => {
+       throw error;
     })
 }
 
@@ -148,6 +150,33 @@ function readIt() {
 function endEntry() {
     console.log('---------------------------------');
     fs.appendFileSync('./log.txt', '---------------------------------' + '\n');
+}
+
+function inquireUsersTweets() {
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "Whose tweets would you like to get?",
+            name: "user"
+        },
+         {
+            type: "confirm",
+            message: "Are you sure:",
+            name: "confirm",
+            default: true
+        }
+    ])
+    .then((response) => {
+        if (response.confirm) {
+            processRequest("get_tweets", response.user);
+        } else {
+            inquireUsersTweets();
+        }
+    })
+    .catch((error) => {
+        throw error;
+    })
+     
 }
 
 function inquireTweet() {
@@ -234,7 +263,7 @@ function inquireCommand() {
         {
             type: "list",
             message: "What would you like to do?",
-            choices: ["Get my tweets", "Post tweet", "Search Spotify", "Search Movies", "Run command from file"],
+            choices: ["Get my tweets", "Get another users tweets", "Post tweet", "Search Spotify", "Search Movies", "Run command from file"],
             name: "choice"
         },
         {
@@ -249,6 +278,9 @@ function inquireCommand() {
             switch (response.choice) {
                 case "Get my tweets":
                     processRequest("my-tweets", "");
+                    break;
+                case "Get another users tweets":
+                    inquireUsersTweets();
                     break;
                 case "Post tweet":
                     inquireTweet();
