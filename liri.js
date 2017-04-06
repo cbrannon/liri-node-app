@@ -12,6 +12,9 @@ function processRequest(command, commandArg) {
         case "my-tweets":
             getTweets();
             break;
+        case "post-tweet":
+            postTweet(commandArg);
+            break;
         case "spotify-this-song":
             getSong(commandArg);
             break;
@@ -29,20 +32,27 @@ function processRequest(command, commandArg) {
 function getTweets() {
     const params = {screen_name: 'clever_cobra'};
     client.get('statuses/user_timeline', params, (error, tweets, response) => {
-        if (!error) {
-            tweets.forEach((tweet, index) => {
-                let tweetItems = [tweet.created_at, tweet.text];
+        if (error) throw error;
+        tweets.forEach((tweet, index) => {
+            let tweetItems = [tweet.created_at, tweet.text];
 
-                tweetItems.forEach((item) => {
-                    console.log(item);
-                    fs.appendFileSync('./log.txt', item + '\n');
-                })
-                endEntry();
-                if (index == 19) {
-                    return;
-                }
+            tweetItems.forEach((item) => {
+                console.log(item);
+                fs.appendFileSync('./log.txt', item + '\n');
             })
-        }
+            endEntry();
+            if (index == 19) {
+                return;
+            }
+        })
+    });
+}
+
+function postTweets(tweet) {
+    const params = {status: tweet};
+    client.post('statuses/update', params, (error, tweet, response) => {
+        if (error) throw error;
+        getTweets();
     });
 }
 
@@ -58,7 +68,7 @@ function getSong(song) {
             }
 
             let tracks = data.tracks.items;
-            data.tracks.items.forEach((track) => {
+            tracks.forEach((track) => {
                 if (track.artists[0].name == "Ace of Base") {
                     logTrack(track);
                 }
@@ -80,7 +90,7 @@ function getSong(song) {
 }
 
 function logTrack(track) {
-     let trackItems = [track.name, track.artists[0].name,
+     const trackItems = [track.name, track.artists[0].name,
          track.artists[0].external_urls.spotify,
          track.album.name];
     
@@ -92,7 +102,7 @@ function logTrack(track) {
 }
 
 function getMovie(movie) {
-    let movieName = movie;
+    const movieName = movie;
 
     if (movieName == undefined) {
         movieName = "Mr. Nobody";
@@ -130,6 +140,18 @@ function readIt() {
 function endEntry() {
     console.log('---------------------------------');
     fs.appendFileSync('./log.txt', '---------------------------------' + '\n');
+}
+
+function inquireTweet() {
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "What would you like to tweet?",
+            name: "tweet"
+        }
+    ]).then((response) => {
+        processRequest("post-tweet", response.tweet);
+    }) 
 }
 
 function inquireTrack() {
@@ -176,6 +198,9 @@ function inquireCommand() {
             switch (response.choice) {
                 case "Get my tweets":
                     processRequest("my-tweets", "");
+                    break;
+                case "Post tweet":
+                    inquireTweet();
                     break;
                 case "Search Spotify":
                     inquireTrack();
