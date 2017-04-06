@@ -78,8 +78,8 @@ function getSong(song) {
 
             let tracks = data.tracks.items;
             tracks.forEach((track) => {
-                if (track.artists[0].name == "Ace of Base") {
-                    logTrack(track);
+                if (track.name == songName && track.artists[0].name == "Ace of Base") {
+                    logTrack(track, songName);
                 }
             });
         });
@@ -92,13 +92,15 @@ function getSong(song) {
 
             let tracks = data.tracks.items;
             tracks.forEach((track) => {
-                logTrack(track);
+                if (track.name == songName) {
+                    logTrack(track);
+                }
             });
         });
     }
 }
 
-function logTrack(track) {
+function logTrack(track, songName) {
      const trackItems = [track.name, track.artists[0].name,
          track.artists[0].external_urls.spotify,
          track.album.name];
