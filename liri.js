@@ -108,7 +108,7 @@ function logTrack(track) {
 }
 
 function getMovie(movie) {
-    const movieName = movie;
+    let movieName = movie;
 
     if (movieName == undefined) {
         movieName = "Mr. Nobody";
