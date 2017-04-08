@@ -12,7 +12,7 @@ function processRequest(command, commandArg) {
         case "my-tweets":
             getTweets('clever_cobra');
             break;
-        case "get_tweets":
+        case "get-tweets":
             getTweets(commandArg)
             break;
         case "post-tweet":
@@ -36,6 +36,10 @@ function getTweets(screenname) {
     const params = {screen_name: screenname};
     client.get('statuses/user_timeline', params)
         .then((tweets) => {
+            if (tweets == undefined || tweets.length == 0) {
+                console.log("No tweets available for this user.");
+                return;
+            }
             tweets.forEach((tweet, index) => {
                 let tweetItems = [tweet.created_at, tweet.text];
 
@@ -160,7 +164,7 @@ function inquireUsersTweets() {
             type: "input",
             message: "Whose tweets would you like to get?",
             name: "user"
-        },
+        }, 
          {
             type: "confirm",
             message: "Are you sure:",
@@ -170,7 +174,7 @@ function inquireUsersTweets() {
     ])
     .then((response) => {
         if (response.confirm) {
-            processRequest("get_tweets", response.user);
+            processRequest("get-tweets", response.user);
         } else {
             inquireUsersTweets();
         }
@@ -178,7 +182,6 @@ function inquireUsersTweets() {
     .catch((error) => {
         throw error;
     })
-     
 }
 
 function inquireTweet() {
@@ -205,7 +208,6 @@ function inquireTweet() {
     .catch((error) => {
         throw error;
     })
-     
 }
 
 function inquireTrack() {
