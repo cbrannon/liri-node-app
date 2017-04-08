@@ -96,9 +96,7 @@ function getSong(song) {
 
             let tracks = data.tracks.items;
             tracks.forEach((track) => {
-                if (track.name == songName) {
-                    logTrack(track);
-                }
+                logTrack(track);
             });
         });
     }
